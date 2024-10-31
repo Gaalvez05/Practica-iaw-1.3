@@ -152,7 +152,7 @@ sudo apt install phpmyadmin php-mbstring php-zip php-gd php-json php-curl -y
 ```
 Instala phpMyAdmin junto con algunos módulos PHP adicionales necesarios.
 
-![](/Practica-iaw-1.3/img/PHPMYADMIN.png)
+![](/img/PHPMYADMIN.png)
 
 ### 2.3.1 Archivo `index.php`
 Crearemos una carpeta llamada `php` donde incluiremos el archivo `index.php` con el siguiente contenido.
