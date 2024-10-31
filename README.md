@@ -250,6 +250,8 @@ sed -i "s/password_here/$DB_PASSWORD/" /var/www/html/config.php
 ```
 Estos comandos usan `sed` para reemplazar las variables de configuración en el archivo `config.php` de la aplicación con las correspondientes variables de entorno ($DB_NAME, $DB_USER, $DB_PASSWORD). Así, el archivo config.php queda configurado correctamente para la conexión a la base de datos.
 
+![](/Practica-iaw-1.3/img/config.php.png)
+
 ## 3.7 Creación de una Base de Datos de Ejemplo
 ### 3.7.1 Eliminar la base de datos si existe
 ```
