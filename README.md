@@ -94,6 +94,8 @@ apt install php libapache2-mod-php php-mysql -y
 ```
 Instala PHP y los módulos necesarios para que Apache pueda procesar scripts PHP y para que PHP pueda interactuar con MySQL.
 
+![](/Practica-iaw-1.3/img/PHPMYADMIN.png)
+
 ## 1.3.2 Reiniciar Apache
 ### 1.3.2.1 Reiniciar el servicio de Apache
 ```
