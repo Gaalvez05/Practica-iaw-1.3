@@ -189,7 +189,7 @@ chown -R www-data:www-data /var/www/html/adminer
 ```
 Cambia el propietario y grupo del directorio de Adminer a www-data, el usuario y grupo predeterminados de Apache.
 
-![](/Practica-iaw-1.3/img/ADMINER.png)
+![](/img/ADMINER.png)
 
 ##  2.5 Instalación de GoAccess
 ### 2.5.1 Instalar GoAccess
@@ -210,7 +210,7 @@ goaccess /var/log/apache2/access.log -o /var/www/html/stats/index.html --log-for
 ```
 Ejecuta GoAccess en segundo plano para generar informes en tiempo real basados en los registros de acceso de Apache.
 
-![](/Practica-iaw-1.3/img/STATS.png)
+![](/img/STATS.png)
 
 # 3 Archivo `deploy.sh`
 ## 3.1 Configuración inicial del archivo
@@ -250,7 +250,7 @@ sed -i "s/password_here/$DB_PASSWORD/" /var/www/html/config.php
 ```
 Estos comandos usan `sed` para reemplazar las variables de configuración en el archivo `config.php` de la aplicación con las correspondientes variables de entorno ($DB_NAME, $DB_USER, $DB_PASSWORD). Así, el archivo config.php queda configurado correctamente para la conexión a la base de datos.
 
-![](/Practica-iaw-1.3/img/config.php.png)
+![](/img/config.php.png)
 
 ## 3.7 Creación de una Base de Datos de Ejemplo
 ### 3.7.1 Eliminar la base de datos si existe
