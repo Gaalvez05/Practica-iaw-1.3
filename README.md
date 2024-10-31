@@ -94,8 +94,6 @@ apt install php libapache2-mod-php php-mysql -y
 ```
 Instala PHP y los módulos necesarios para que Apache pueda procesar scripts PHP y para que PHP pueda interactuar con MySQL.
 
-![](/Practica-iaw-1.3/img/PHPMYADMIN.png)
-
 ## 1.3.2 Reiniciar Apache
 ### 1.3.2.1 Reiniciar el servicio de Apache
 ```
@@ -154,6 +152,8 @@ sudo apt install phpmyadmin php-mbstring php-zip php-gd php-json php-curl -y
 ```
 Instala phpMyAdmin junto con algunos módulos PHP adicionales necesarios.
 
+![](/Practica-iaw-1.3/img/PHPMYADMIN.png)
+
 ### 2.3.1 Archivo `index.php`
 Crearemos una carpeta llamada `php` donde incluiremos el archivo `index.php` con el siguiente contenido.
 ```
@@ -163,9 +163,6 @@ phpinfo();
 
 ?>
 ```
-Al acceder a la pagina web veremos el siguiente contenido:
-
-![](/IMG/Captura%20de%20pantalla%202024-10-18%20190908.png)
 
 ## 2.4 Instalación de Adminer
 ### Paso 1: Crear un directorio para Adminer
@@ -192,6 +189,8 @@ chown -R www-data:www-data /var/www/html/adminer
 ```
 Cambia el propietario y grupo del directorio de Adminer a www-data, el usuario y grupo predeterminados de Apache.
 
+![](/Practica-iaw-1.3/img/ADMINER.png)
+
 ##  2.5 Instalación de GoAccess
 ### 2.5.1 Instalar GoAccess
 ```
@@ -210,3 +209,89 @@ Crea un directorio donde se almacenarán los informes generados por GoAccess.
 goaccess /var/log/apache2/access.log -o /var/www/html/stats/index.html --log-format=COMBINED --real-time-html --daemonize
 ```
 Ejecuta GoAccess en segundo plano para generar informes en tiempo real basados en los registros de acceso de Apache.
+
+![](/Practica-iaw-1.3/img/STATS.png)
+
+# 3 Archivo `deploy.sh`
+## 3.1 Configuración inicial del archivo
+En la carpeta `scripts`crearemos otro archivo creado `deploy.sh` con el siguiente contenido:
+```  
+#!/bin/bash
+
+set -ex
+
+source env.
+```
+Los primeros comandos que utilizaremos serán para ver los comandos que se van ejecutando `-e` y para que pare en caso de que se produzca un error `-x`.
+
+## 3.2 Eliminamos clonados previos de la aplicación
+```
+rm -rf /tmp/iaw-practica-lamp
+```
+Este comando elimina la carpeta temporal /tmp/iaw-practica-lamp si existe, incluyendo cualquier contenido previo. Esto asegura que no queden archivos de ejecuciones anteriores.
+
+## 3.4 Clonamos el repositorio de la aplicación en /tmp
+```
+git clone https://github.com/josejuansanchez/iaw-practica-lamp.git /tmp/iaw-practica-lamp
+```
+Aquí se clona el repositorio de la aplicación desde GitHub en la carpeta `/tmp/iaw-practica-lamp`. Esta carpeta temporal servirá como espacio para la copia del repositorio antes de moverlo a su ubicación final.
+
+## 3.5 Movemos el código fuente de la aplicación a /var/www/html
+```
+mv /tmp/iaw-practica-lamp/src/* /var/www/html
+```
+Este comando mueve todos los archivos fuente de la carpeta temporal `/tmp/iaw-practica-lamp/src/` a `/var/www/html`, que es donde el servidor web (Apache) sirve la aplicación.
+
+## 3.6 Configuramos el archivo config.php
+```
+sed -i "s/database_name_here/$DB_NAME/" /var/www/html/config.php
+sed -i "s/username_here/$DB_USER/" /var/www/html/config.php
+sed -i "s/password_here/$DB_PASSWORD/" /var/www/html/config.php
+```
+Estos comandos usan `sed` para reemplazar las variables de configuración en el archivo `config.php` de la aplicación con las correspondientes variables de entorno ($DB_NAME, $DB_USER, $DB_PASSWORD). Así, el archivo config.php queda configurado correctamente para la conexión a la base de datos.
+
+## 3.7 Creación de una Base de Datos de Ejemplo
+### 3.7.1 Eliminar la base de datos si existe
+```
+mysql -u root <<< "DROP DATABASE IF EXISTS $DB_NAME"
+```
+Elimina la base de datos con el nombre $DB_NAME si ya existe.
+
+### 3.7.2 Crear una nueva base de datos
+```
+mysql -u root <<< "CREATE DATABASE $DB_NAME"
+```
+Crea una nueva base de datos con el nombre $DB_NAME.
+
+### 3.7.3 Crear un usuario para la base de datos de ejemplo
+```
+mysql -u root <<< "DROP USER IF EXISTS '$DB_USER'@'%'"
+mysql -u root <<< "CREATE USER '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD'"
+mysql -u root <<< "GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'%'"
+```
+Crea un nuevo usuario de base de datos y le otorga todos los privilegios sobre la nueva base de datos.
+
+## 3.8 Creación del archivo `.env`
+Este archivo irá sobre la carpeta `script` y nos ayudará a declarar todas las variables que hemos visto anteriormente `(con un "$" delante)` y así no tengamos que declararlas en este archivo, ocupando así, más espacio.
+
+### 3.8.1 Contenido del archivo `.env`
+Una vez creado nos meteremos y pondremos todas las variables que han ido apareciendo con su declaración, de esta manera:
+```
+PHPMYADMIN_APP_PASSWORD=password
+DB_USER=usuario
+DB_PASSWORD=password
+DB_NAME=moodle
+```
+Así sabrá el script cuál es el dato de cada variable de entorno sin tener que ponerla nosotros.
+
+## 3.9 Configuramos el script de SQL con el nombre de la base de datos
+```
+sed -i "s/lamp_db/$DB_NAME/" /tmp/iaw-practica-lamp/db/database.sql
+```
+Aquí, se modifica el archivo database.sql para reemplazar el nombre de la base de datos predeterminado (lamp_db) por el valor de $DB_NAME.
+
+## 3.10 Creamos las tablas de la base de datos
+```
+mysql -u root < /tmp/iaw-practica-lamp/db/database.sql
+```
+Este último comando ejecuta el script SQL database.sql, que crea las tablas necesarias en la base de datos. Se conecta a MySQL como root y le indica que ejecute el contenido del archivo SQL.
